@@ -2,13 +2,10 @@ node_modules
 .next
 .git
 .gitignore
-README.md
-Dockerfile
-.dockerignore
-.eslintrc.json
-tsconfig.json
-package-lock.json
-next.config.ts
+.env.local
 implementation_plan.md
 task.md
 walkthrough.md
+test_*.js
+list_models.js
+find_region.js
