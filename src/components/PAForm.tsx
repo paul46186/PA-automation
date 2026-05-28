@@ -1,5 +1,5 @@
 import React from 'react';
-import { pa_form_schema, initial_agent_responses } from '../mockData';
+import { pa_form_schema } from '../mockData';
 
 interface Props {
   answers: { [key: string]: string };
@@ -7,15 +7,16 @@ interface Props {
   onHighlight: (id: string | null) => void;
   onReview: () => void;
   reviewStatus: 'idle' | 'reviewing' | 'completed';
+  liveAgentData: any;
 }
 
-export default function PAForm({ answers, setAnswers, onHighlight, onReview, reviewStatus }: Props) {
+export default function PAForm({ answers, setAnswers, onHighlight, onReview, reviewStatus, liveAgentData }: Props) {
   const isVisible = (qId: string) => {
     const q = pa_form_schema.find(x => x.id === qId);
     if (!q?.depends_on) return true;
     const parentQ = pa_form_schema.find(x => x.id === q.depends_on);
     if (!parentQ) return true;
-    return answers[parentQ.id] === 'No'; // Hardcoded skip logic for POC
+    return answers[parentQ.id] === 'No';
   };
 
   return (
@@ -40,14 +41,14 @@ export default function PAForm({ answers, setAnswers, onHighlight, onReview, rev
         </h2>
         <div style={{ display: 'flex', gap: '8px' }}>
           <span style={{ fontSize: '11px', color: 'var(--success)', fontWeight: '600', backgroundColor: '#ecfdf5', padding: '2px 8px', borderRadius: '4px' }}>
-            Auto-Populated
+            Live AI Processing
           </span>
         </div>
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
         {pa_form_schema.filter(q => isVisible(q.id)).map((q) => {
-          const agentRes = initial_agent_responses[q.id as keyof typeof initial_agent_responses];
+          const agentRes = liveAgentData ? liveAgentData[q.id] : null;
           return (
             <div key={q.id} style={{
               backgroundColor: 'white',
@@ -165,7 +166,7 @@ export default function PAForm({ answers, setAnswers, onHighlight, onReview, rev
             transition: 'all 0.2s'
           }}
         >
-          {reviewStatus === 'reviewing' ? <span className="loading-dots">AI Reviewing</span> : 'Final Review & Submit'}
+          {reviewStatus === 'reviewing' ? <span className="loading-dots">Live Agent Reviewing</span> : 'Final Review & Submit'}
         </button>
       </div>
     </div>

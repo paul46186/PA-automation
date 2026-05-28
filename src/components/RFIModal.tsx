@@ -84,7 +84,11 @@ export default function RFIModal({ isOpen, onClose, rfiMessage }: Props) {
           gap: '12px'
         }}>
           <button
-            onClick={() => { alert('Form Overridden: Submitting to Payer with existing evidence.'); onClose(); }}
+            onClick={() => { 
+              alert('Form Overridden: Submitting to Payer with existing evidence.'); 
+              window.open('/pbm', '_blank');
+              onClose(); 
+            }}
             style={{
               padding: '10px 20px',
               borderRadius: '8px',
@@ -96,6 +100,7 @@ export default function RFIModal({ isOpen, onClose, rfiMessage }: Props) {
           >
             Override & Submit to Payer
           </button>
+
 
           <button
             onClick={() => { alert('RFI Sent to Doctor'); onClose(); }}
