@@ -6,13 +6,14 @@ import EHRViewer from '../components/EHRViewer';
 import PAForm from '../components/PAForm';
 import RFIModal from '../components/RFIModal';
 import EntryScreens from '../components/EntryScreens';
-import { initial_agent_responses, patient_context } from '../mockData';
+import { patient_context, initial_agent_responses } from '../mockData';
 
 type Stage = 'landing' | 'fetch' | 'choice' | 'processing' | 'dashboard';
 
 export default function Home() {
   const [stage, setStage] = useState<Stage>('landing');
   const [answers, setAnswers] = useState<{ [key: string]: string }>({});
+  const [liveAgentData, setLiveAgentData] = useState<any>(initial_agent_responses);
 
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const [reviewStatus, setReviewStatus] = useState<'idle' | 'reviewing' | 'completed'>('idle');
@@ -27,8 +28,8 @@ export default function Home() {
   const handleChoice = (choice: 'ai' | 'human') => {
     if (choice === 'ai') {
       setStage('processing');
+      // Simulated AI Delay (3 seconds)
       setTimeout(() => {
-        // Auto-fill logic
         const autoFilled: { [key: string]: string } = {};
         Object.keys(initial_agent_responses).forEach(key => {
           autoFilled[key] = (initial_agent_responses as any)[key].answer;
@@ -49,9 +50,14 @@ export default function Home() {
 
   const runFinalReview = () => {
     setReviewStatus('reviewing');
+    
+    // Simulated Review Delay (2.5 seconds)
     setTimeout(() => {
       setReviewStatus('completed');
+      
+      // Clinical logic: if no biologic trial, trigger RFI
       const missingInfo = answers.q3 === 'No';
+      
       if (missingInfo) {
         const msg = `Dear Doctor,\n\nWe are reviewing the clinical documentation for ${patient_context.name} regarding the Prior Authorization for Otezla (Apremilast).\n\nWhile the diagnosis of Plaque Psoriasis and trial of topical steroids are well-documented, the payer requires a 3-month trial and failure of a preferred biologic (e.g., Humira) or Methotrexate as per step-therapy protocols.\n\nPlease provide any clinical evidence of such trials or a justification for skipping these preferred therapies (e.g., specific contraindications) to support this request.\n\nThank you,\nPA Review Agent`;
         setRfiMessage(msg);
@@ -78,6 +84,7 @@ export default function Home() {
           onHighlight={setHighlightId}
           onReview={runFinalReview}
           reviewStatus={reviewStatus}
+          liveAgentData={liveAgentData}
         />
       </div>
 
@@ -110,9 +117,9 @@ export default function Home() {
           backgroundColor: reviewStatus === 'reviewing' ? 'var(--warning)' : reviewStatus === 'completed' ? 'var(--danger)' : 'var(--success)',
           boxShadow: '0 0 10px rgba(0,0,0,0.5)'
         }} />
-        {reviewStatus === 'reviewing' ? 'Agent: Reviewing clinical gaps...' : 
+        {reviewStatus === 'reviewing' ? 'Agent: Comparing evidence to guidelines...' : 
          reviewStatus === 'completed' ? 'Agent: Identified Step-Therapy Deficit (RFI Required)' : 
-         'Agent: EHR Extraction Complete'}
+         'Agent: Extraction Complete'}
       </div>
     </main>
   );
